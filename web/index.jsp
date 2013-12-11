@@ -6,12 +6,17 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
+<jsp:useBean id="userBean" scope="session" class="main.UserBean" />
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>TP BECKLER Application Internet Avancées</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Tic Tac Toe !</h1>
+        <form action="entryServlet" method="post">
+            <input type="submit" name="User" value="Je commence..."> <br>
+            <input type="submit" name="Computer" value="L'ordinateur commence ...">
+        </form>
     </body>
 </html>
