@@ -7,22 +7,20 @@ package main;
  */
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author ASUS
  */
 @WebServlet(urlPatterns = {"/entryServlet"})
-public class EntryServlet extends HttpServlet {
-
+public class EntryServlet extends HttpServlet
+{
+    private Game g;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -35,60 +33,68 @@ public class EntryServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet entryServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet entryServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
+        
+        String message = "You choose to play " + request.getParameter("order");
+        
+        Game m = new Game();
+        request.getSession().setAttribute("game", g);
 
-    private UserBean getUserBean(HttpServletRequest request)
-    {
-        UserBean userBean = (UserBean) request.getSession(true).getAttribute("User");
-        if (userBean == null) {
-        userBean = new UserBean();
-        request.getSession().setAttribute("userBean", userBean);
-        }
-        return userBean;
-    }
-    
-    private boolean validatesStartBy(HttpServletRequest request)
-    {
-        UserBean userBean = getUserBean(request);
-        if(request.getParameter("submit").equals("User"))
+        request.setAttribute("message", message);
+        request.setAttribute("pic1", "/Blank.png");
+        request.setAttribute("pic2", "/Blank.png");
+        request.setAttribute("pic3", "/Blank.png");
+        
+        request.setAttribute("pic4", "/Blank.png");
+        request.setAttribute("pic5", "/Blank.png");
+        request.setAttribute("pic6", "/Blank.png");
+
+        request.setAttribute("pic7", "/Blank.png");
+        request.setAttribute("pic8", "/Blank.png");
+        request.setAttribute("pic9", "/Blank.png");
+        
+        if(request.getParameter("order").equals("second"))
         {
-        //joueur commence
-            userBean.setStarter(true);
-        }else{
-        //traitement de la deuxieme boutton
-            userBean.setStarter(false);
+            
+            this.g = (Game) request.getSession().getAttribute("game");
+        
+            try {
+                PcPlayer.INSTANCE.play(g);
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        switch (g.getCase(i, j)) {
+                            case 1:
+                                request.setAttribute("pic" + i + j, "Cross.png");
+                                break;
+                            case 2:
+                                request.setAttribute("pic" + i + j, "Circle.png");
+                                break;
+                            default:
+                                request.setAttribute("pic" + i + j, "Blank.png");
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                request.setAttribute("error", e.getStackTrace());
+            }
         }
-        return userBean.isStarter();
+        request.getRequestDispatcher("/game.jsp").forward(request, response);
     }
     
     /**
+     * Handles the HTTP <code>POST</code> method.
      *
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws IOException
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        boolean startByUser = validatesStartBy(request);
-        UserBean userBean = getUserBean(request);
-        userBean.setStartByUser(startByUser);
-        userBean.startGame();
-        RequestDispatcher rd = getServletContext().getRequestDispatcher("/game.jsp");
-        rd.forward(request, response);
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -104,15 +110,6 @@ public class EntryServlet extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
     }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
 
     /**
      * Returns a short description of the servlet.
