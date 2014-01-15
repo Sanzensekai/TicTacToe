@@ -7,8 +7,6 @@
 package main;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,9 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author ASUS
  */
 @WebServlet(name = "Game", urlPatterns = {"/Game"})
-public class GameServlet extends HttpServlet {
-    private boolean startByUser;
-
+public class GameServlet extends HttpServlet
+{
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -35,18 +32,35 @@ public class GameServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Game</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Game at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+
+        Integer x = Integer.parseInt(request.getParameter("x"));
+        Integer y = Integer.parseInt(request.getParameter("y"));
+        
+        Game m = (Game) request.getSession().getAttribute("game");
+
+        try {
+        m.play(x, y);
+            PcPlayer.INSTANCE.play(m);
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    switch (m.getCase(i, j)) {
+                        case 1:
+                            request.setAttribute("pic" + i + j, "/Cross.png");
+                            break;
+                        case 2:
+                            request.setAttribute("pic" + i + j, "/Circle.png");
+                            break;
+                        default:
+                            request.setAttribute("pic" + i + j, "/Blanck.png");
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            request.setAttribute("error", e.getStackTrace());
         }
+        
+        request.getRequestDispatcher("/game.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -74,13 +88,8 @@ public class GameServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
-    {
-        UserBean userBean = getUserBean(request);
-        userBean.setStartByUser(startByUser);
-        userBean.startGame();
-        RequestDispatcher rd = getServletContext().getRequestDispatcher("/game.jsp");
-        rd.forward(request, response);
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
 
     /**
@@ -93,10 +102,4 @@ public class GameServlet extends HttpServlet {
     {
         return "Short description";
     }// </editor-fold>
-
-    private UserBean getUserBean(HttpServletRequest request)
-    {
-        return (UserBean)request.getSession(true).getAttribute("userBean");
-    }
-
 }
