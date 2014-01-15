@@ -14,7 +14,7 @@
     </head>
     <body>
         <h1>Tic Tac Toe !</h1>
-        <form action="entryServlet" method="post">
+        <form id ="game_order" action="entryServlet" method="post">
             <input type="submit" name="User" value="Je commence..."> <br>
             <input type="submit" name="Computer" value="L'ordinateur commence ...">
         </form>

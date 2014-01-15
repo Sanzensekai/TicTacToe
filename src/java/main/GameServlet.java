@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "Game", urlPatterns = {"/Game"})
 public class GameServlet extends HttpServlet {
+    private boolean startByUser;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -92,5 +93,10 @@ public class GameServlet extends HttpServlet {
     {
         return "Short description";
     }// </editor-fold>
+
+    private UserBean getUserBean(HttpServletRequest request)
+    {
+        return (UserBean)request.getSession(true).getAttribute("userBean");
+    }
 
 }
